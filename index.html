@@ -367,7 +367,7 @@
 
       <div class="bg-slate-900 border border-slate-700 rounded-xl p-3 flex items-center justify-between gap-2 mb-3">
         <span id="mobile-url-text" class="text-xs text-amber-300 font-mono select-all overflow-hidden text-ellipsis whitespace-nowrap text-left dir-ltr flex-1 font-bold">
-          https://yearly-growth-else-tune.trycloudflare.com
+          https://witch-notifications-scanned-beta.trycloudflare.com
         </span>
         <button onclick="copyMobileUrl()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
           <i class="fa-regular fa-copy"></i> Copy
@@ -443,7 +443,7 @@
 
     // Global state - Defined at the very top to guarantee NO Temporal Dead Zone ReferenceErrors
     let lastFetchedHash = "";
-    // hasPendingUpload defined at top
+    let hasPendingUpload = false;
     let isSyncing = false;
     let syncFailCount = 0;
     let lastSyncTime = Date.now();
@@ -757,7 +757,7 @@
     // Service Worker registration for Android PWA
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=10').then(reg => {
           reg.update();
         }).catch(() => {});
         navigator.serviceWorker.addEventListener('controllerchange', () => {
@@ -840,10 +840,7 @@
 
     // BULLETPROOF PERSISTENT REAL-TIME SYNC ENGINE v5
     // ========================================================
-    let lastSyncTime = Date.now();
-    // hasPendingUpload defined at top
-    let syncFailCount = 0;
-    let isSyncing = false;
+    // (Sync state variables declared at top of script)
 
     // Fast timeout-protected fetch (never hangs on mobile wakeups)
     async function fetchWithTimeout(resource, options = {}) {
@@ -1477,6 +1474,7 @@
     // Render immediately on load so board is NEVER blank
     updateMetrics();
     renderBoard();
+    updateSyncBadge("idle");
 
     // Desktop Widget Window Controls
     function onWidgetDrag(e) {
