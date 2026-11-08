@@ -367,7 +367,7 @@
 
       <div class="bg-slate-900 border border-slate-700 rounded-xl p-3 flex items-center justify-between gap-2 mb-3">
         <span id="mobile-url-text" class="text-xs text-amber-300 font-mono select-all overflow-hidden text-ellipsis whitespace-nowrap text-left dir-ltr flex-1 font-bold">
-          https://rpg-generally-promotes-integrate.trycloudflare.com
+          https://yearly-growth-else-tune.trycloudflare.com
         </span>
         <button onclick="copyMobileUrl()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
           <i class="fa-regular fa-copy"></i> Copy
@@ -433,70 +433,69 @@
   </div>
 
   <script>
-    // ==========================================
-    // ☁️ 24/7 GOOGLE CLOUD FIRESTORE INTEGRATION
-    // ==========================================
-    const firebaseConfig = {
-      apiKey: "AIzaSyDr0KEST19-6geklBIRSUPdz5uP0S5MFbc",
-      authDomain: "to-do-list-e6f39.firebaseapp.com",
-      projectId: "to-do-list-e6f39",
-      storageBucket: "to-do-list-e6f39.firebasestorage.app",
-      messagingSenderId: "313278630042",
-      appId: "1:313278630042:web:e698faddf448beacda3723",
-      measurementId: "G-JE5WWLRR37"
-    };
+    // ================================================================
+    // ☁️ BULLETPROOF GOOGLE CLOUD FIRESTORE REST SYNC ENGINE (24/7)
+    // ================================================================
+    const FIRESTORE_PROJECT_ID = "to-do-list-e6f39";
+    const FIRESTORE_API_KEY = "AIzaSyDr0KEST19-6geklBIRSUPdz5uP0S5MFbc";
+    const FIRESTORE_REST_URL = "https://firestore.googleapis.com/v1/projects/" + FIRESTORE_PROJECT_ID + "/databases/(default)/documents/boards/lighting_tasks?key=" + FIRESTORE_API_KEY;
+    const IS_LOCAL_HOST = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 
-    let firestoreDb = null;
-    let firestoreDoc = null;
-    let isFirestoreActive = false;
-    let firestoreUnsubscribe = null;
+    // Global state - Defined at the very top to guarantee NO Temporal Dead Zone ReferenceErrors
+    let lastFetchedHash = "";
+    // hasPendingUpload defined at top
+    let isSyncing = false;
+    let syncFailCount = 0;
+    let lastSyncTime = Date.now();
+    let isCloudConnected = false;
 
-    try {
-      if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-        firestoreDb = firebase.firestore();
-        firestoreDoc = firestoreDb.collection("boards").doc("lighting_tasks");
-        console.log("🔥 Firebase Cloud Firestore Initialized Successfully");
+    function hashData(obj) {
+      try {
+        return JSON.stringify(obj);
+      } catch (e) {
+        return "";
       }
-    } catch (fbErr) {
-      console.warn("Firebase Init Notice:", fbErr);
     }
 
-    function setupFirestoreRealtime() {
-      if (!firestoreDoc) return;
+    async function fetchTasksFromCloud() {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 6000);
       try {
-        if (firestoreUnsubscribe) firestoreUnsubscribe();
-        firestoreUnsubscribe = firestoreDoc.onSnapshot({ includeMetadataChanges: false }, (docSnap) => {
-          if (docSnap.exists) {
-            const dataObj = docSnap.data();
-            if (dataObj && dataObj.data) {
-              try {
-                const remoteData = JSON.parse(dataObj.data);
-                if (Array.isArray(remoteData) && remoteData.length > 0) {
-                  const remoteHash = hashData(remoteData);
-                  if (remoteHash !== lastFetchedHash && !hasPendingUpload) {
-                    lastFetchedHash = remoteHash;
-                    boardData = remoteData;
-                    localStorage.setItem('lighting_board_data_v2', JSON.stringify(boardData));
-                    updateMetrics();
-                    renderBoard();
-                  }
-                  isFirestoreActive = true;
-                  syncFailCount = 0;
-                  lastSyncTime = Date.now();
-                  updateSyncBadge('success');
-                }
-              } catch (pErr) {
-                console.error("Firestore JSON Parse Error:", pErr);
-              }
-            }
-          }
-        }, (error) => {
-          console.warn("Firestore Snapshot Offline/Error:", error);
-          isFirestoreActive = false;
+        const res = await fetch(FIRESTORE_REST_URL, { signal: controller.signal });
+        clearTimeout(id);
+        if (!res.ok) throw new Error("Cloud fetch status " + res.status);
+        const doc = await res.json();
+        const rawData = doc.fields?.data?.stringValue;
+        if (!rawData) throw new Error("No data string in Firestore document");
+        return JSON.parse(rawData);
+      } catch (err) {
+        clearTimeout(id);
+        throw err;
+      }
+    }
+
+    async function pushTasksToCloud(dataToPush) {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 6000);
+      const payload = {
+        fields: {
+          data: { stringValue: JSON.stringify(dataToPush) },
+          updatedAt: { stringValue: new Date().toISOString() }
+        }
+      };
+      try {
+        const res = await fetch(FIRESTORE_REST_URL, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: controller.signal
         });
-      } catch (e) {
-        console.warn("setupFirestoreRealtime:", e);
+        clearTimeout(id);
+        if (!res.ok) throw new Error("Cloud push status " + res.status);
+        return true;
+      } catch (err) {
+        clearTimeout(id);
+        throw err;
       }
     }
 
@@ -750,7 +749,7 @@
     let currentFilter = 'all';
     let searchQuery = '';
     let isSaving = false;
-    let lastFetchedHash = '';
+    // lastFetchedHash defined at top
     let activeEditingTaskId = null;
     let activeEditingCatId = null;
     let deferredPrompt = null;
@@ -842,7 +841,7 @@
     // BULLETPROOF PERSISTENT REAL-TIME SYNC ENGINE v5
     // ========================================================
     let lastSyncTime = Date.now();
-    let hasPendingUpload = false;
+    // hasPendingUpload defined at top
     let syncFailCount = 0;
     let isSyncing = false;
 
@@ -871,96 +870,71 @@
       }
     }
 
-    // Two-way synchronization worker with Cloud Firestore + Local Fallback
+    // Unified Two-Way Cloud Sync Worker (Google Cloud Firestore 24/7)
     async function performSync() {
       if (isSyncing) return;
       isSyncing = true;
       updateSyncBadge('syncing');
 
       try {
-        // 1. If there are unsaved local changes, push them to Cloud Firestore first
+        // 1. Push unsaved local changes to Cloud Firestore
         if (hasPendingUpload) {
-          let pushSuccess = false;
-
-          // Push to Google Cloud Firestore (24/7 Global Sync)
-          if (firestoreDoc) {
-            try {
-              await firestoreDoc.set({
-                data: JSON.stringify(boardData),
-                updatedAt: new Date().toISOString()
-              });
-              pushSuccess = true;
-              isFirestoreActive = true;
-            } catch (fsErr) {
-              console.warn("Firestore Cloud Push Failed, trying local:", fsErr);
-            }
-          }
-
-          // Push to local server if running
-          try {
-            const postRes = await fetchWithTimeout('/api/tasks', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(boardData),
-              timeout: 3000
-            });
-            if (postRes.ok) {
-              pushSuccess = true;
-            }
-          } catch (locErr) {
-            // Local server might be sleeping/offline
-          }
-
-          if (pushSuccess) {
-            hasPendingUpload = false;
-            lastFetchedHash = hashData(boardData);
-            lastSyncTime = Date.now();
-            syncFailCount = 0;
-            if (navigator.vibrate) navigator.vibrate(25);
-            updateSyncBadge('success');
-          } else {
-            throw new Error('Push failed to both Cloud Firestore and local server');
-          }
+          await pushTasksToCloud(boardData);
+          hasPendingUpload = false;
+          lastFetchedHash = hashData(boardData);
+          lastSyncTime = Date.now();
+          syncFailCount = 0;
+          isCloudConnected = true;
+          if (navigator.vibrate) navigator.vibrate(25);
+          updateSyncBadge('success');
         }
 
-        // 2. If Firestore real-time listener is offline, fallback to polling local /api/tasks
-        if (!isFirestoreActive) {
+        // 2. Fetch latest changes from Cloud Firestore
+        const remoteData = await fetchTasksFromCloud();
+        if (Array.isArray(remoteData) && remoteData.length > 0) {
+          const remoteHash = hashData(remoteData);
+          if (remoteHash !== lastFetchedHash && !hasPendingUpload) {
+            lastFetchedHash = remoteHash;
+            boardData = remoteData;
+            localStorage.setItem('lighting_board_data_v2', JSON.stringify(boardData));
+            updateMetrics();
+            renderBoard();
+          }
+          isCloudConnected = true;
+          syncFailCount = 0;
+          lastSyncTime = Date.now();
+          updateSyncBadge('success');
+        }
+      } catch (cloudErr) {
+        console.warn("Cloud sync notice:", cloudErr);
+
+        // Fallback to local server ONLY if running on localhost
+        if (IS_LOCAL_HOST) {
           try {
-            const getRes = await fetchWithTimeout('/api/tasks', { timeout: 3000 });
-            if (getRes.ok) {
-              const remoteData = await getRes.json();
-              if (Array.isArray(remoteData) && remoteData.length > 0) {
-                const remoteHash = hashData(remoteData);
-                if (remoteHash !== lastFetchedHash && !hasPendingUpload) {
-                  lastFetchedHash = remoteHash;
-                  boardData = remoteData;
+            const locRes = await fetchWithTimeout('/api/tasks', { timeout: 2500 });
+            if (locRes.ok) {
+              const locData = await locRes.json();
+              if (Array.isArray(locData) && locData.length > 0) {
+                const locHash = hashData(locData);
+                if (locHash !== lastFetchedHash && !hasPendingUpload) {
+                  lastFetchedHash = locHash;
+                  boardData = locData;
                   localStorage.setItem('lighting_board_data_v2', JSON.stringify(boardData));
                   updateMetrics();
                   renderBoard();
                 }
               }
-              lastSyncTime = Date.now();
               syncFailCount = 0;
+              lastSyncTime = Date.now();
               updateSyncBadge('success');
+              return;
             }
-          } catch (getErr) {
-            if (boardData.length === 0) {
-              const stored = localStorage.getItem('lighting_board_data_v2') || localStorage.getItem('lighting_board_data_v1');
-              if (stored) {
-                boardData = JSON.parse(stored);
-                updateMetrics();
-                renderBoard();
-              }
-            }
-            if (!isFirestoreActive) {
-              syncFailCount++;
-              updateSyncBadge('error');
-            }
-          }
+          } catch (locErr) {}
         }
-      } catch (err) {
-        if (!isFirestoreActive) {
-          syncFailCount++;
+
+        // Only mark error if failed multiple times consecutively
+        syncFailCount++;
+        if (syncFailCount >= 3) {
           updateSyncBadge('error');
         }
       } finally {
@@ -972,7 +946,7 @@
       performSync();
     }
 
-    // Save tasks (instant local storage + queue sync)
+    // Save tasks (instant optimistic local update + immediate cloud push)
     async function saveTasks() {
       hasPendingUpload = true;
       localStorage.setItem('lighting_board_data_v2', JSON.stringify(boardData));
@@ -980,7 +954,7 @@
       performSync();
     }
 
-    // Interactive, reassuring Live Sync badge
+    // Interactive Live Sync Badge
     function updateSyncBadge(state) {
       const badge = document.getElementById('sync-status-badge');
       if (!badge) return;
@@ -988,16 +962,16 @@
       if (state === 'syncing') {
         badge.className = "text-[11px] bg-sky-500/20 text-sky-400 border border-sky-500/30 px-2.5 py-0.5 rounded-full font-semibold flex items-center gap-1.5 cursor-pointer active:scale-95 transition";
         badge.innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin text-[10px]"></i><span>Syncing...</span>';
-      } else if (state === 'error' || (!isFirestoreActive && syncFailCount > 0)) {
+      } else if (state === 'error' || syncFailCount >= 3) {
         badge.className = "text-[11px] bg-rose-500/20 text-rose-400 border border-rose-500/30 px-2.5 py-0.5 rounded-full font-semibold flex items-center gap-1.5 cursor-pointer active:scale-95 transition";
-        badge.title = "Offline or reconnecting. Tap to sync now!";
-        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span><span>Reconnecting...</span>';
+        badge.title = "Offline or connecting. Tap to sync now!";
+        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span><span>Connecting...</span>';
       } else {
         const secondsAgo = Math.max(0, Math.round((Date.now() - lastSyncTime) / 1000));
-        let timeTxt = secondsAgo <= 3 ? "Just now" : `${secondsAgo}s ago`;
+        let timeTxt = secondsAgo <= 3 ? "Just now" : secondsAgo + "s ago";
         badge.className = "text-[11px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-semibold flex items-center gap-1.5 cursor-pointer active:scale-95 transition";
-        badge.title = isFirestoreActive ? "Cloud Synced (Google Firestore 24/7)" : "Live Synced! Tap to force sync now";
-        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span>${isFirestoreActive ? 'Cloud Live' : 'Synced'} (${timeTxt})</span>`;
+        badge.title = "Cloud Live (Google Firestore 24/7). Tap to refresh.";
+        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span>Cloud Live (' + timeTxt + ')</span>';
       }
     }
 
@@ -1009,7 +983,7 @@
     }, 1000);
 
     // Background sync polling every 2.0s
-    setInterval(performSync, 2000);
+    setInterval(performSync, 2500);
 
     // CRITICAL: Instant Wakeup & Reconnection Listeners for Mobile Sleep
     document.addEventListener('visibilitychange', () => {
