@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rizk-notes-v9-bulletproof';
+const CACHE_NAME = 'rizk-notes-v10-fixed';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
