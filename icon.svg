@@ -10,7 +10,7 @@
     <!-- Engineering Gold Gradient -->
     <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#FDE68A"/>
-      <stop offset="35%" stop-color="#F59E0B"/>
+      <stop offset="30%" stop-color="#F59E0B"/>
       <stop offset="100%" stop-color="#D97706"/>
     </linearGradient>
 
@@ -20,55 +20,50 @@
       <stop offset="100%" stop-color="#38BDF8"/>
     </linearGradient>
 
-    <!-- Blueprint Grid Pattern -->
     <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
-      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#334155" stroke-width="0.75" opacity="0.35"/>
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#334155" stroke-width="0.8" opacity="0.4"/>
     </pattern>
+
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
   </defs>
 
-  <!-- Base Rounded Hex-Square Canvas -->
-  <rect width="512" height="512" rx="110" fill="url(#bgGrad)"/>
-  <rect width="512" height="512" rx="110" fill="url(#grid)"/>
+  <!-- Base Rounded Card Canvas -->
+  <rect width="512" height="512" rx="100" fill="url(#bgGrad)"/>
+  <rect width="512" height="512" rx="100" fill="url(#grid)"/>
+  <rect x="8" y="8" width="496" height="496" rx="94" fill="none" stroke="#F59E0B" stroke-width="5" stroke-opacity="0.85"/>
   
-  <!-- Outer Technical Blueprint Ring & Ticks -->
-  <circle cx="256" cy="256" r="210" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="6 8" opacity="0.6"/>
-  <circle cx="256" cy="256" r="195" fill="none" stroke="#475569" stroke-width="1.5" opacity="0.4"/>
+  <!-- Outer Blueprint Precision Rings -->
+  <circle cx="256" cy="256" r="215" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="6 8" opacity="0.6"/>
+  <circle cx="256" cy="256" r="190" fill="none" stroke="url(#cyanGrad)" stroke-width="2.5" opacity="0.75"/>
+  <circle cx="256" cy="256" r="160" fill="none" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="4 6" opacity="0.5"/>
+
+  <!-- Glowing Core Aura -->
+  <circle cx="256" cy="256" r="110" fill="#F59E0B" opacity="0.12" filter="url(#glow)"/>
+
+  <!-- Architectural 'R' Pillar -->
+  <rect x="176" y="146" width="36" height="225" rx="8" fill="url(#goldGrad)"/>
   
-  <!-- Geometric Compass Arc & Caliper Guide -->
-  <path d="M 120 256 A 136 136 0 0 1 392 256" fill="none" stroke="url(#cyanGrad)" stroke-width="3" stroke-linecap="round" stroke-dasharray="12 12" opacity="0.8"/>
+  <!-- Technical Calibration Notches -->
+  <line x1="170" y1="185" x2="182" y2="185" stroke="#0f172a" stroke-width="3"/>
+  <line x1="170" y1="225" x2="182" y2="225" stroke="#0f172a" stroke-width="3"/>
+  <line x1="170" y1="265" x2="182" y2="265" stroke="#0f172a" stroke-width="3"/>
+  <line x1="170" y1="305" x2="182" y2="305" stroke="#0f172a" stroke-width="3"/>
+  <line x1="170" y1="345" x2="182" y2="345" stroke="#0f172a" stroke-width="3"/>
 
-  <!-- Core Engineering Symbol: Stylized Architectural "R" + Light Beam -->
-  <!-- Vertical Pillar of 'R' with Engineering Dimension Notches -->
-  <rect x="156" y="130" width="36" height="252" rx="10" fill="url(#goldGrad)"/>
-  
-  <!-- Notch lines along pillar -->
-  <line x1="150" y1="170" x2="162" y2="170" stroke="#0f172a" stroke-width="3"/>
-  <line x1="150" y1="210" x2="162" y2="210" stroke="#0f172a" stroke-width="3"/>
-  <line x1="150" y1="250" x2="162" y2="250" stroke="#0f172a" stroke-width="3"/>
-  <line x1="150" y1="290" x2="162" y2="290" stroke="#0f172a" stroke-width="3"/>
-  <line x1="150" y1="330" x2="162" y2="330" stroke="#0f172a" stroke-width="3"/>
+  <!-- Upper Loop of 'R' -->
+  <path d="M 212 146 L 275 146 A 58 58 0 0 1 275 262 L 212 262 Z" fill="none" stroke="url(#goldGrad)" stroke-width="34" stroke-linejoin="round"/>
 
-  <!-- Upper Loop of 'R' (Engineered Arc) -->
-  <path d="M 188 130 H 280 C 330 130 358 158 358 200 C 358 242 330 270 280 270 H 188 Z" 
-        fill="none" stroke="url(#goldGrad)" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Diagonal Engineering Leg of 'R' -->
+  <polygon points="212,250 250,250 336,371 298,371" fill="url(#goldGrad)"/>
 
-  <!-- Diagonal Leg of 'R' (Dynamic Optical Light Beam) -->
-  <path d="M 264 252 L 356 382" 
-        fill="none" stroke="url(#goldGrad)" stroke-width="38" stroke-linecap="round"/>
-
-  <!-- Precision Engineering Vertex / Optical Emitter Node -->
-  <circle cx="280" cy="200" r="14" fill="#0f172a" stroke="url(#cyanGrad)" stroke-width="5"/>
-  <circle cx="280" cy="200" r="5" fill="#38BDF8"/>
-
-  <!-- Light Beam / Compass Pivot Point at Center Bottom -->
-  <circle cx="356" cy="382" r="10" fill="url(#cyanGrad)"/>
-
-  <!-- Drafting Caliper Ticks in Corners -->
-  <path d="M 100 130 L 100 100 L 130 100" fill="none" stroke="#F59E0B" stroke-width="3.5" opacity="0.7"/>
-  <path d="M 412 130 L 412 100 L 382 100" fill="none" stroke="#F59E0B" stroke-width="3.5" opacity="0.7"/>
-  <path d="M 100 382 L 100 412 L 130 412" fill="none" stroke="#F59E0B" stroke-width="3.5" opacity="0.7"/>
-  <path d="M 412 382 L 412 412 L 382 412" fill="none" stroke="#F59E0B" stroke-width="3.5" opacity="0.7"/>
-
-  <!-- Subtle Glow Effect -->
-  <circle cx="256" cy="256" r="170" fill="none" stroke="url(#goldGrad)" stroke-width="1.5" opacity="0.2"/>
+  <!-- Precision Luminaire Rays -->
+  <g filter="url(#glow)">
+    <line x1="316" y1="180" x2="355" y2="150" stroke="url(#cyanGrad)" stroke-width="4.5" stroke-linecap="round"/>
+    <line x1="328" y1="195" x2="375" y2="180" stroke="url(#cyanGrad)" stroke-width="4.5" stroke-linecap="round"/>
+    <line x1="324" y1="210" x2="368" y2="215" stroke="url(#cyanGrad)" stroke-width="4.5" stroke-linecap="round"/>
+    <circle cx="316" cy="195" r="7" fill="#FFFFFF"/>
+  </g>
 </svg>
