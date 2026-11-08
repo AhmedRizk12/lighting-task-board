@@ -1,11 +1,13 @@
-const CACHE_NAME = 'rizk-notes-v6-live';
+const CACHE_NAME = 'rizk-notes-v8-crisp';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png',
-  '/icon.svg',
+  './',
+  './index.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png',
+  './icon-maskable-512.png',
+  './apple-touch-icon.png',
+  './icon.svg',
   'https://cdn.tailwindcss.com',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
@@ -33,7 +35,6 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Network-First Strategy: Always fetch live from server so updates apply instantly without reinstalling!
 self.addEventListener('fetch', (event) => {
   const url = event.request.url;
 
@@ -60,11 +61,10 @@ self.addEventListener('fetch', (event) => {
         return networkResponse;
       })
       .catch(() => {
-        // Fallback to cache if offline
         return caches.match(event.request).then((cached) => {
           if (cached) return cached;
           if (event.request.mode === 'navigate') {
-            return caches.match('/index.html');
+            return caches.match('./index.html') || caches.match('index.html');
           }
         });
       })
