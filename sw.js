@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rizk-notes-v10-fixed';
+const CACHE_NAME = 'rizk-notes-v11-email-sync';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
