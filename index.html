@@ -367,7 +367,7 @@
 
       <div class="bg-slate-900 border border-slate-700 rounded-xl p-3 flex items-center justify-between gap-2 mb-3">
         <span id="mobile-url-text" class="text-xs text-amber-300 font-mono select-all overflow-hidden text-ellipsis whitespace-nowrap text-left dir-ltr flex-1 font-bold">
-          https://witch-notifications-scanned-beta.trycloudflare.com
+          https://smell-warnings-til-pointer.trycloudflare.com
         </span>
         <button onclick="copyMobileUrl()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
           <i class="fa-regular fa-copy"></i> Copy
@@ -757,7 +757,7 @@
     // Service Worker registration for Android PWA
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=10').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=11').then(reg => {
           reg.update();
         }).catch(() => {});
         navigator.serviceWorker.addEventListener('controllerchange', () => {
@@ -1364,6 +1364,11 @@
                         <div class="leading-relaxed select-text min-w-0 flex-1 break-words">
                           ${priorityDot}
                           <span class="${textStyle} text-sm font-medium tracking-tight">${task.text}</span>
+                          ${task.unread_emails > 0 ? `
+                            <span class="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full ml-1.5 shadow-sm align-middle transition" title="New email from: ${task.email_sender || ''} - ${task.email_subject || ''}">
+                              <i class="fa-solid fa-envelope text-[9px]"></i> ${task.unread_emails}
+                            </span>
+                          ` : ''}
                         </div>
                       </div>
                       <div class="flex items-center gap-1.5 shrink-0 ml-1">
